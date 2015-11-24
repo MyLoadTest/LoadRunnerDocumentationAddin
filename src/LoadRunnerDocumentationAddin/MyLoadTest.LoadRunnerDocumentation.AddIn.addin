@@ -1,0 +1,33 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<AddIn xmlns="http://www.icsharpcode.net/2005/addin"
+        name="MyLoadTest.LoadRunnerDocumentation.AddIn"
+        author="MyLoadTest"
+        url="http://www.myloadtest.com/"
+        description="A LoadRunner add-in to embed a description of the business process steps into your VuGen script">
+    <Runtime>
+        <Import assembly="Omnifactotum.dll" />
+        <Import assembly="MyLoadTest.LoadRunnerDocumentation.AddIn.dll" />
+    </Runtime>
+
+    <Manifest>
+        <Identity name="MyLoadTest.LoadRunnerDocumentation.AddIn"
+                version="@MyLoadTest.LoadRunnerDocumentation.AddIn.dll" />
+        <Dependency addin="SharpDevelop" version="4.1" />
+    </Manifest>
+
+    <Path name="/Workspace/Autostart">
+        <Class id="MyLoadTest.LoadRunnerDocumentation.AddIn.Startup"
+                class="MyLoadTest.LoadRunnerDocumentation.AddIn.HostCommands.StartupCommand" />
+    </Path>
+
+    <Path name="/SharpDevelop/Workbench/Pads">
+        <Pad id="MyLoadTest.LoadRunnerDocumentation.AddIn.Pads.DocumentationPad"
+                category="Main"
+                icon="LoadRunnerDocumentation"
+                title="Documentation"
+                defaultPosition="Bottom"
+                insertafter="OutputPad"
+                class="MyLoadTest.LoadRunnerDocumentation.AddIn.Pads.DocumentationPad" />
+    </Path>
+</AddIn>

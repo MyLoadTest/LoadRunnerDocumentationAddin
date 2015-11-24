@@ -1,0 +1,15 @@
+*.tmp
+bin/
+obj/
+_Output_/
+*.suo
+*.csproj.user
+*.DotSettings.user
+build*.log
+*.log
+_ReSharper*
+*.Publish.xml
+*.wbk
+~$*.doc
+ThumbnailsCache.tmp
+*.sdf
