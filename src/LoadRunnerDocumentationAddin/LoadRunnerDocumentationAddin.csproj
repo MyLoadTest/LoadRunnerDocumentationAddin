@@ -83,9 +83,13 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Commands\AsyncRelayCommand.cs" />
+    <Compile Include="Commands\RelayCommand.cs" />
+    <Compile Include="Commands\RelayCommandBase.cs" />
     <Compile Include="Controls\DocumentationControl.xaml.cs">
       <DependentUpon>DocumentationControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\DocumentationControlViewModel.cs" />
     <Compile Include="HostCommands\StartupCommand.cs" />
     <Compile Include="Pads\DocumentationPad.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -102,6 +106,8 @@
     <Content Include="MyLoadTest.LoadRunnerDocumentation.AddIn.addin">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Resource Include="Resources\Pdf.png" />
+    <Resource Include="Resources\Refresh.png" />
     <None Include="Resources\LoadRunnerDocumentation.png" />
   </ItemGroup>
   <ItemGroup>
@@ -112,7 +118,7 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
+      <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
@@ -146,6 +152,7 @@ if exist "%25ADDIN_TARGET_PATH%25" (
 @echo * Copying the add-in to target directory "%25ADDIN_TARGET_PATH%25".
 xcopy /f /g /h /r /y "$(TargetDir)\MyLoadTest.*" "%25ADDIN_TARGET_PATH%25\" || @exit 2
 xcopy /f /g /h /r /y "$(TargetDir)\Omnifactotum.*" "%25ADDIN_TARGET_PATH%25\" || @exit 3
+xcopy /f /g /h /r /y "$(ProjectDir)\..\..\lib\srcML\*.*" "%25ADDIN_TARGET_PATH%25\lib\srcML\" || @exit 4
 @echo * Copying the add-in to target directory - DONE.
 @echo.
 

@@ -3,7 +3,43 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        mc:Ignorable="d"
-        d:DesignHeight="300" d:DesignWidth="300">
-    <Grid />
+        xmlns:properties="clr-namespace:MyLoadTest.LoadRunnerDocumentation.AddIn.Properties"
+        xmlns:controls="clr-namespace:MyLoadTest.LoadRunnerDocumentation.AddIn.Controls"
+        mc:Ignorable="d" d:DesignHeight="300" d:DesignWidth="300">
+    <UserControl.Resources>
+        <BitmapImage x:Key="RefreshImageSource"
+                UriSource="pack://application:,,,/MyLoadTest.LoadRunnerDocumentation.AddIn;component/Resources/Refresh.png" />
+        <BitmapImage x:Key="ExportToPdfImageSource"
+                UriSource="pack://application:,,,/MyLoadTest.LoadRunnerDocumentation.AddIn;component/Resources/Pdf.png" />
+    </UserControl.Resources>
+
+    <UserControl.DataContext>
+        <controls:DocumentationControlViewModel x:Name="ViewModel" />
+    </UserControl.DataContext>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <ToolBar Grid.Row="0" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"
+                OverflowMode="AsNeeded">
+            <ToolBar.Resources>
+                <Style TargetType="Image">
+                    <Setter Property="Margin" Value="5,2,5,2" />
+                </Style>
+            </ToolBar.Resources>
+            <Button Command="{Binding RefreshCommand}"
+                    ToolTip="{x:Static properties:Resources.ToolbarButtonRefresh}">
+                <Image Source="{StaticResource RefreshImageSource}" />
+            </Button>
+            <Button Command="{Binding ExportToPdfCommand}"
+                    ToolTip="{x:Static properties:Resources.ToolbarButtonExportToPdf}">
+                <Image Source="{StaticResource ExportToPdfImageSource}" />
+            </Button>
+        </ToolBar>
+
+        <DockPanel Grid.Row="1" Dock="Bottom" Background="{x:Static SystemColors.ControlBrush}" />
+    </Grid>
 </UserControl>
