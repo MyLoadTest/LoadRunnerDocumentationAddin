@@ -1,8 +1,17 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Windows;
+using HP.LR.Vugen.BackEnd.Project.ProjectSystem;
+using HP.LR.VuGen.ServiceCore.Data.ProjectSystem;
+using HP.Utt.ProjectSystem;
+using HP.Utt.ProjectSystem.ScriptItems;
+using ICSharpCode.SharpDevelop.Project;
 using MyLoadTest.LoadRunnerDocumentation.AddIn.Commands;
+using MyLoadTest.LoadRunnerDocumentation.AddIn.Parsing;
 using MyLoadTest.LoadRunnerDocumentation.AddIn.Properties;
+using Omnifactotum;
 
 namespace MyLoadTest.LoadRunnerDocumentation.AddIn.Controls
 {
@@ -54,6 +63,29 @@ namespace MyLoadTest.LoadRunnerDocumentation.AddIn.Controls
         // ReSharper disable once MemberCanBeMadeStatic.Local
         private void ExecuteRefreshCommandInternal()
         {
+            IUttBaseScriptItem scriptItem = (ProjectService.CurrentProject as VuGenProject)?.Script;
+
+            var actionFilePaths = new List<string>();
+
+            Factotum.ProcessRecursively(
+                scriptItem,
+                item =>
+                    //// ReSharper disable once RedundantEnumerableCastCall - False detection
+                    (item as IUttCollectionScriptItem<IUttBaseScriptItem>)?.ScriptItems
+                        ?? (item as IUttCollectionScriptItem<IActionScriptItem>)?.ScriptItems
+                            .Cast<IUttBaseScriptItem>(),
+                item =>
+                {
+                    var actionScriptItem = item as IActionScriptItem;
+                    if (actionScriptItem != null)
+                    {
+                        actionFilePaths.Add(actionScriptItem.FullFileName);
+                    }
+                });
+
+            var parsedFileDatas = Parser.ParseFiles(actionFilePaths);
+            Trace.WriteLine(parsedFileDatas);
+
             throw new NotImplementedException();
         }
 

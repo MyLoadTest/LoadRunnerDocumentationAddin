@@ -14,7 +14,7 @@ namespace MyLoadTest.LoadRunnerDocumentation.AddIn.Parsing
 
         private const int WaitTimeout = 15000;
 
-        private const string ArgumentTemplate = @"--language C --position --hash --output {0} ""{1}""";
+        private const string ArgumentTemplate = @"--language C --position --hash --output ""{0}"" ""{1}""";
 
         private static readonly string SrcMLPath = Path.Combine(
             Path.GetDirectoryName(typeof(Parser).Assembly.GetLocalPath()).EnsureNotNull(),
@@ -62,6 +62,13 @@ namespace MyLoadTest.LoadRunnerDocumentation.AddIn.Parsing
 
                 throw new LoadRunnerDocumentationAddinException(
                     "Timeout has expired prior to the parsing of the source files has finished.");
+            }
+
+            var exitCode = process.ExitCode;
+            if (exitCode != 0)
+            {
+                throw new LoadRunnerDocumentationAddinException(
+                    $@"Parsing of the source files has finished with the error code {exitCode}.");
             }
 
             XDocument xDocument;
