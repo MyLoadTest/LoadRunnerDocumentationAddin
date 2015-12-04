@@ -14,7 +14,7 @@ namespace MyLoadTest.LoadRunnerDocumentation.AddIn.Parsing
 
         private const int WaitTimeout = 15000;
 
-        private const string ArgumentTemplate = @"--language C --position --hash --output ""{0}"" ""{1}""";
+        private const string ArgumentTemplate = @"--language C --position --hash --archive --output ""{0}"" ""{1}""";
 
         private static readonly string SrcMLPath = Path.Combine(
             Path.GetDirectoryName(typeof(Parser).Assembly.GetLocalPath()).EnsureNotNull(),
@@ -47,6 +47,7 @@ namespace MyLoadTest.LoadRunnerDocumentation.AddIn.Parsing
             var arguments = string.Format(ArgumentTemplate, outputFilePath, filePaths.Join(@""" """));
             var startInfo = new ProcessStartInfo(SrcMLPath, arguments)
             {
+                CreateNoWindow = true,
                 ErrorDialog = false,
                 UseShellExecute = false,
                 WindowStyle = ProcessWindowStyle.Hidden,
@@ -71,14 +72,57 @@ namespace MyLoadTest.LoadRunnerDocumentation.AddIn.Parsing
                     $@"Parsing of the source files has finished with the error code {exitCode}.");
             }
 
-            XDocument xDocument;
+            XDocument document;
             using (var fileStream = File.Open(outputFilePath, FileMode.Open, FileAccess.Read, FileShare.Read))
             {
-                xDocument = XDocument.Load(fileStream, LoadOptions.PreserveWhitespace);
-                Trace.WriteLine(xDocument.Root);
+                document = XDocument.Load(fileStream, LoadOptions.PreserveWhitespace);
             }
 
-            throw new NotImplementedException();
+            File.Delete(outputFilePath);
+
+            var unitElements = document
+                .Root?
+                .Elements(ParsingConstants.Element.Unit)
+                .Where(element => element.Attribute(ParsingConstants.Attribute.FileName) != null)
+                .ToArray()
+                ?? new XElement[0];
+
+            var resultList = new List<ParsedFileData>(unitElements.Length);
+
+            //// ReSharper disable once LoopCanBeConvertedToQuery
+            foreach (var unitElement in unitElements)
+            {
+                var fileName = unitElement.Attribute(ParsingConstants.Attribute.FileName).EnsureNotNull().Value;
+                var hash = unitElement.Attribute(ParsingConstants.Attribute.Hash).EnsureNotNull().Value;
+
+                var commentElements = unitElement.Descendants(ParsingConstants.Element.Comment).ToArray();
+                var commentDatas = commentElements
+                    .Where(
+                        element =>
+                            element.Attribute(ParsingConstants.Attribute.Type)?.Value
+                                == ParsingConstants.SingleLineCommentType)
+                    .Select(
+                        element => new
+                        {
+                            Match = ParsingConstants.DocCommentRegex.Match(element.Value),
+                            LineIndex =
+                                element.Attribute(ParsingConstants.Attribute.Position.Line)?.Value.TryParseInt()
+                        })
+                    .Where(obj => obj.Match.Success)
+                    .Select(
+                        obj =>
+                            new CommentData(
+                                obj.Match.Groups[ParsingConstants.SoleRegexGroupName].Value,
+                                obj.LineIndex))
+                    .ToArray();
+
+                var data = new ParsedFileData(fileName, hash, commentDatas);
+                resultList.Add(data);
+            }
+
+            //// TODO [vmaklai] Parse transactions scopes: lr_start_transaction and lr_end_transaction
+
+            return resultList.ToArray();
         }
 
         #endregion
