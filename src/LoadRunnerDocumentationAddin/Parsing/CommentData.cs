@@ -1,40 +1,58 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 using Omnifactotum.Annotations;
 
 namespace MyLoadTest.LoadRunnerDocumentation.AddIn.Parsing
 {
-    [DebuggerDisplay("@{LineIndex}: {Content}")]
+    [DebuggerDisplay("@{StartLineIndex}-{EndLineIndex} : {Lines[0]} ...")]
     internal sealed class CommentData
     {
         #region Constructors
 
-        public CommentData([NotNull] string content, int? lineIndex)
+        public CommentData(int startLineIndex, [NotNull] ICollection<string> lines)
         {
             #region Argument Check
 
-            if (content == null)
+            if (lines == null)
             {
-                throw new ArgumentNullException(nameof(content));
+                throw new ArgumentNullException(nameof(lines));
+            }
+
+            if (lines.Count == 0)
+            {
+                throw new ArgumentException(@"The collection is empty.", nameof(lines));
+            }
+
+            if (lines.Any(item => item == null))
+            {
+                throw new ArgumentException(@"The collection contains a null element.", nameof(lines));
             }
 
             #endregion
 
-            Content = content;
-            LineIndex = lineIndex;
+            Lines = lines.ToArray().AsReadOnly();
+            StartLineIndex = startLineIndex;
+            EndLineIndex = startLineIndex + lines.Count - 1;
         }
 
         #endregion
 
         #region Public Properties
 
-        public string Content
+        public ReadOnlyCollection<string> Lines
         {
             get;
         }
 
-        public int? LineIndex
+        public int StartLineIndex
+        {
+            get;
+        }
+
+        public int EndLineIndex
         {
             get;
         }

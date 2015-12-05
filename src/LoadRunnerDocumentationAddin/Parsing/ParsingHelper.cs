@@ -19,6 +19,11 @@ namespace MyLoadTest.LoadRunnerDocumentation.AddIn.Parsing
                 : default(int?);
         }
 
+        public static int ParseInt([CanBeNull] this string value)
+        {
+            return TryParseInt(value).EnsureNotNull();
+        }
+
         #endregion
     }
 }

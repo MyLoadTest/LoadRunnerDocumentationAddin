@@ -106,15 +106,20 @@ namespace MyLoadTest.LoadRunnerDocumentation.AddIn.Parsing
                         {
                             Match = ParsingConstants.DocCommentRegex.Match(element.Value),
                             LineIndex =
-                                element.Attribute(ParsingConstants.Attribute.Position.Line)?.Value.TryParseInt()
+                                element
+                                    .Attribute(ParsingConstants.Attribute.Position.Line)
+                                    .EnsureNotNull()
+                                    .Value.ParseInt()
                         })
                     .Where(obj => obj.Match.Success)
                     .Select(
                         obj =>
                             new CommentData(
-                                obj.Match.Groups[ParsingConstants.SoleRegexGroupName].Value,
-                                obj.LineIndex))
+                                obj.LineIndex,
+                                obj.Match.Groups[ParsingConstants.SoleRegexGroupName].Value.AsArray()))
                     .ToArray();
+
+                //// TODO [vmaklai] Merge consecutive comment lines into one CommentData
 
                 var data = new ParsedFileData(fileName, hash, commentDatas);
                 resultList.Add(data);
