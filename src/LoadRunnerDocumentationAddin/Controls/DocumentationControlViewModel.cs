@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Windows;
+using System.Windows.Threading;
 using HP.LR.Vugen.BackEnd.Project.ProjectSystem;
 using HP.LR.VuGen.ServiceCore.Data.ProjectSystem;
 using HP.Utt.ProjectSystem;
@@ -17,10 +18,18 @@ namespace MyLoadTest.LoadRunnerDocumentation.AddIn.Controls
 {
     internal sealed class DocumentationControlViewModel
     {
+        #region Constants and Fields
+
+        private readonly Dispatcher _dispatcher;
+
+        #endregion
+
         #region Constructors
 
         public DocumentationControlViewModel()
         {
+            _dispatcher = Dispatcher.CurrentDispatcher.EnsureNotNull();
+
             RefreshCommand = new AsyncRelayCommand(ExecuteRefreshCommand);
             ExportToPdfCommand = new RelayCommand(ExecuteExportToPdfCommand);
         }
@@ -43,6 +52,41 @@ namespace MyLoadTest.LoadRunnerDocumentation.AddIn.Controls
 
         #region Private Methods
 
+        private static void ShowErrorMessageBoxInternal(string text)
+        {
+            var mainWindow = Application.Current?.MainWindow;
+
+            if (mainWindow == null)
+            {
+                MessageBox.Show(
+                    text,
+                    Resources.AddInTitle,
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+            }
+            else
+            {
+                MessageBox.Show(
+                    mainWindow,
+                    text,
+                    Resources.AddInTitle,
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+            }
+        }
+
+        private void ShowErrorMessageBox(string text)
+        {
+            if (_dispatcher.CheckAccess())
+            {
+                ShowErrorMessageBoxInternal(text);
+            }
+            else
+            {
+                _dispatcher.Invoke(() => ShowErrorMessageBoxInternal(text), DispatcherPriority.Send);
+            }
+        }
+
         private void ExecuteRefreshCommand(object parameter)
         {
             try
@@ -52,11 +96,7 @@ namespace MyLoadTest.LoadRunnerDocumentation.AddIn.Controls
             catch (Exception ex)
                 when (!ex.IsFatal())
             {
-                MessageBox.Show(
-                    $@"Error occurred: {ex.Message}",
-                    Resources.AddInTitle,
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Error);
+                ShowErrorMessageBox($@"Error occurred: {ex.Message}");
             }
         }
 
@@ -86,6 +126,11 @@ namespace MyLoadTest.LoadRunnerDocumentation.AddIn.Controls
             var parsedFileDatas = Parser.ParseFiles(actionFilePaths);
             Trace.WriteLine(parsedFileDatas);
 
+            ////var content = parsedFileDatas.Single(obj => obj.Comments.Count != 0).Comments.First().Content;
+
+            ////var block = CommonMarkConverter.Parse(content);
+            ////Trace.WriteLine(block);
+
             throw new NotImplementedException();
         }
 
@@ -98,11 +143,7 @@ namespace MyLoadTest.LoadRunnerDocumentation.AddIn.Controls
             catch (Exception ex)
                 when (!ex.IsFatal())
             {
-                MessageBox.Show(
-                    $@"Error occurred: {ex.Message}",
-                    Resources.AddInTitle,
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Error);
+                ShowErrorMessageBox($@"Error occurred: {ex.Message}");
             }
         }
 

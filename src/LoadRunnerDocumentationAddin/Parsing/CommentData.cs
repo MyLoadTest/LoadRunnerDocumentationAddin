@@ -7,52 +7,44 @@ using Omnifactotum.Annotations;
 
 namespace MyLoadTest.LoadRunnerDocumentation.AddIn.Parsing
 {
-    [DebuggerDisplay("@{StartLineIndex}-{EndLineIndex} : {Lines[0]} ...")]
+    [DebuggerDisplay("@{LineIndex} : {Content}")]
     internal sealed class CommentData
     {
         #region Constructors
 
-        public CommentData(int startLineIndex, [NotNull] ICollection<string> lines)
+        public CommentData(int lineIndex, [NotNull] string content)
         {
             #region Argument Check
 
-            if (lines == null)
+            if (lineIndex < 0)
             {
-                throw new ArgumentNullException(nameof(lines));
+                throw new ArgumentOutOfRangeException(
+                    nameof(lineIndex),
+                    lineIndex,
+                    @"The value cannot be negative.");
             }
 
-            if (lines.Count == 0)
+            if (content == null)
             {
-                throw new ArgumentException(@"The collection is empty.", nameof(lines));
-            }
-
-            if (lines.Any(item => item == null))
-            {
-                throw new ArgumentException(@"The collection contains a null element.", nameof(lines));
+                throw new ArgumentNullException(nameof(content));
             }
 
             #endregion
 
-            Lines = lines.ToArray().AsReadOnly();
-            StartLineIndex = startLineIndex;
-            EndLineIndex = startLineIndex + lines.Count - 1;
+            LineIndex = lineIndex;
+            Content = content;
         }
 
         #endregion
 
         #region Public Properties
 
-        public ReadOnlyCollection<string> Lines
+        public int LineIndex
         {
             get;
         }
 
-        public int StartLineIndex
-        {
-            get;
-        }
-
-        public int EndLineIndex
+        public string Content
         {
             get;
         }

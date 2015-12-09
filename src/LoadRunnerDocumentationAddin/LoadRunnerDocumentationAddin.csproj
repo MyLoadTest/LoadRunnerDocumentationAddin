@@ -36,6 +36,10 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="CommonMark, Version=0.1.0.0, Culture=neutral, PublicKeyToken=001ef8810438905d, processorArchitecture=MSIL">
+      <HintPath>..\packages\CommonMark.NET.0.10.0\lib\net45\CommonMark.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="HP.LR.VuGen.ProjectSystem">
       <HintPath>..\..\lib\VuGen\HP.LR.VuGen.ProjectSystem.dll</HintPath>
       <Private>False</Private>
@@ -151,15 +155,17 @@ echo.
 
 if exist "%25ADDIN_TARGET_PATH%25" (
     @echo * Cleaning add-in target directory "%25ADDIN_TARGET_PATH%25".
-    rd /s /q "%25ADDIN_TARGET_PATH%25" || @exit 1
+    rd /s /q "%25ADDIN_TARGET_PATH%25" || @exit 100
     @echo * Cleaning add-in target directory - DONE.
     @echo.
 )
 
 @echo * Copying the add-in to target directory "%25ADDIN_TARGET_PATH%25".
-xcopy /f /g /h /r /y "$(TargetDir)\MyLoadTest.*" "%25ADDIN_TARGET_PATH%25\" || @exit 2
-xcopy /f /g /h /r /y "$(TargetDir)\Omnifactotum.*" "%25ADDIN_TARGET_PATH%25\" || @exit 3
-xcopy /f /g /h /r /y "$(ProjectDir)\..\..\lib\srcML\*.*" "%25ADDIN_TARGET_PATH%25\lib\srcML\" || @exit 4
+xcopy /f /g /h /r /y "$(TargetDir)\MyLoadTest.*" "%25ADDIN_TARGET_PATH%25\" || @exit 1
+xcopy /f /g /h /r /y "$(TargetDir)\Omnifactotum.*" "%25ADDIN_TARGET_PATH%25\" || @exit 2
+xcopy /f /g /h /r /y "$(ProjectDir)\..\..\lib\srcML\*.*" "%25ADDIN_TARGET_PATH%25\lib\srcML\" || @exit 3
+xcopy /f /g /h /r /y "$(TargetDir)\CommonMark.*" "%25ADDIN_TARGET_PATH%25\" || @exit 4
+
 @echo * Copying the add-in to target directory - DONE.
 @echo.
 

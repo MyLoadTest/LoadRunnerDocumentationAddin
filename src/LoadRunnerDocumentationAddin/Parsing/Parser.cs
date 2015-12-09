@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using System.Xml.Linq;
 
 namespace MyLoadTest.LoadRunnerDocumentation.AddIn.Parsing
@@ -96,7 +97,8 @@ namespace MyLoadTest.LoadRunnerDocumentation.AddIn.Parsing
                 var hash = unitElement.Attribute(ParsingConstants.Attribute.Hash).EnsureNotNull().Value;
 
                 var commentElements = unitElement.Descendants(ParsingConstants.Element.Comment).ToArray();
-                var commentDatas = commentElements
+
+                var rawCommentDatas = commentElements
                     .Where(
                         element =>
                             element.Attribute(ParsingConstants.Attribute.Type)?.Value
@@ -114,12 +116,51 @@ namespace MyLoadTest.LoadRunnerDocumentation.AddIn.Parsing
                     .Where(obj => obj.Match.Success)
                     .Select(
                         obj =>
-                            new CommentData(
+                            new
+                            {
                                 obj.LineIndex,
-                                obj.Match.Groups[ParsingConstants.SoleRegexGroupName].Value.AsArray()))
+                                Content = obj.Match.Groups[ParsingConstants.SoleRegexGroupName].Value
+                            })
+                    .OrderBy(obj => obj.LineIndex)
                     .ToArray();
 
-                //// TODO [vmaklai] Merge consecutive comment lines into one CommentData
+                var commentDatas = new List<CommentData>(rawCommentDatas.Length);
+
+                var contentBuilder = new StringBuilder();
+                var startLineIndex = int.MinValue;
+
+                Action addData =
+                    () =>
+                    {
+                        if (startLineIndex >= 0 && contentBuilder.Length != 0)
+                        {
+                            var commentData = new CommentData(startLineIndex, contentBuilder.ToString());
+                            commentDatas.Add(commentData);
+                        }
+
+                        contentBuilder.Clear();
+                    };
+
+                for (var index = 0; index < rawCommentDatas.Length; index++)
+                {
+                    var rawCommentData = rawCommentDatas[index];
+
+                    if (index == 0 || rawCommentData.LineIndex != rawCommentDatas[index - 1].LineIndex + 1)
+                    {
+                        addData();
+
+                        startLineIndex = rawCommentData.LineIndex;
+                    }
+
+                    if (contentBuilder.Length != 0)
+                    {
+                        contentBuilder.AppendLine();
+                    }
+
+                    contentBuilder.Append(rawCommentData.Content);
+                }
+
+                addData();
 
                 var data = new ParsedFileData(fileName, hash, commentDatas);
                 resultList.Add(data);
