@@ -1,28 +1,69 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+using System.Windows.Threading;
 
 namespace MyLoadTest.LoadRunnerDocumentation.AddIn.Controls
 {
-    /// <summary>
-    /// Interaction logic for DocumentationControl.xaml
-    /// </summary>
-    public partial class DocumentationControl : UserControl
+    public sealed partial class DocumentationControl
     {
+        #region Constructors
+
         public DocumentationControl()
         {
             InitializeComponent();
+
+            DocumentationWebBrowser.Loaded += (sender, args) => RefreshDocumentation();
+            ViewModel.PropertyChanged += ViewModel_PropertyChanged;
         }
+
+        #endregion
+
+        #region Private Methods
+
+        private void RefreshDocumentationInternal()
+        {
+            var htmlBody = ViewModel.DocumentationHtmlContent;
+
+            var htmlContent =
+                $@"
+            <html>
+                <head>
+                    <meta http-equiv=""Content-Type"" content=""text/html;charset=UTF-8""/>
+                    <style type=""text/css"">{
+                    Properties.Resources.DefaultDocumentationCssStyle
+                    }</style>
+                </head>
+                <body oncontextmenu=""return false;"">
+                    {
+                    htmlBody}
+                </body>
+            </html>";
+
+            DocumentationWebBrowser.NavigateToString(htmlContent);
+        }
+
+        private void RefreshDocumentation()
+        {
+            if (Dispatcher.CheckAccess())
+            {
+                RefreshDocumentationInternal();
+            }
+            else
+            {
+                Dispatcher.BeginInvoke((Action)RefreshDocumentationInternal, DispatcherPriority.Render);
+            }
+        }
+
+        private void ViewModel_PropertyChanged(object sender, PropertyChangedEventArgs args)
+        {
+            if (args.PropertyName == nameof(ViewModel.DocumentationHtmlContent))
+            {
+                RefreshDocumentation();
+            }
+        }
+
+        #endregion
     }
 }

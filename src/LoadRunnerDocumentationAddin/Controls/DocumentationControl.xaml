@@ -40,6 +40,10 @@
             </Button>
         </ToolBar>
 
-        <DockPanel Grid.Row="1" Dock="Bottom" Background="{x:Static SystemColors.ControlBrush}" />
+        <DockPanel Grid.Row="1" Dock="Bottom" Background="{x:Static SystemColors.ControlBrush}">
+            <Border BorderBrush="{x:Static SystemColors.ActiveBorderBrush}" BorderThickness="3">
+                <WebBrowser Name="DocumentationWebBrowser" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+            </Border>
+        </DockPanel>
     </Grid>
 </UserControl>

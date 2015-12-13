@@ -117,6 +117,7 @@
     <Content Include="MyLoadTest.LoadRunnerDocumentation.AddIn.addin">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <None Include="Resources\DefaultDocumentationCssStyle.css" />
     <Resource Include="Resources\Pdf.png" />
     <Resource Include="Resources\Refresh.png" />
     <None Include="Resources\LoadRunnerDocumentation.png" />

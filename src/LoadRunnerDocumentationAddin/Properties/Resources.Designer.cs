@@ -70,6 +70,49 @@ namespace MyLoadTest.LoadRunnerDocumentation.AddIn.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to body {
+        ///    background-color: #CCCCCC;
+        ///    font-family: &quot;Verdana&quot;;
+        ///    font-size: 10pt;
+        ///}
+        ///
+        ///p, ul, ol, li {
+        ///    font-family: &quot;Verdana&quot;;
+        ///    font-size: 10pt;
+        ///}
+        ///
+        ///h1 {
+        ///    color: #CC8500;
+        ///    text-align: center;
+        ///    font-size: 20pt;
+        ///    font-weight: bold;
+        ///}
+        ///
+        ///h2 {
+        ///    color: #AA6500;
+        ///    text-align: left;
+        ///    font-size: 16pt;
+        ///    font-weight: bold;
+        ///}
+        ///
+        ///h3 {
+        ///    color: #AA6500;
+        ///    text-align: left;
+        ///    font-size: 12pt;
+        ///    font-weight: bold;
+        ///}
+        ///
+        ///h4 {
+        ///    color: #AA6500;
+        ///    text-al [rest of string was truncated]&quot;;.
+        /// </summary>
+        public static string DefaultDocumentationCssStyle {
+            get {
+                return ResourceManager.GetString("DefaultDocumentationCssStyle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
         public static System.Drawing.Bitmap LoadRunnerDocumentation {

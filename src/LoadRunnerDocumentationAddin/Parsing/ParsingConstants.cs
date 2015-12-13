@@ -23,7 +23,7 @@ namespace MyLoadTest.LoadRunnerDocumentation.AddIn.Parsing
                 | RegexOptions.Compiled);
 
         public static readonly Regex DocCommentRegex = new Regex(
-            $@"^ {DocCommentPrefix} \s* (?<{SoleRegexGroupName}>.*) $",
+            $@"^ {DocCommentPrefix} \s? (?<{SoleRegexGroupName}>.*) $",
             RegexOptions.Singleline | RegexOptions.ExplicitCapture | RegexOptions.IgnorePatternWhitespace
                 | RegexOptions.Compiled);
 
