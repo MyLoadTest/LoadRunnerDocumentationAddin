@@ -3,7 +3,7 @@ using System.Diagnostics;
 
 namespace MyLoadTest.LoadRunnerDocumentation.AddIn.Parsing
 {
-    [DebuggerDisplay("[{GetType().Name,nq}] @{LineIndex}")]
+    [DebuggerDisplay("[{GetType().Name,nq}] #{LineIndex}")]
     internal abstract class ParsedElement
     {
         #region Constructors

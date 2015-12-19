@@ -4,7 +4,7 @@ using Omnifactotum.Annotations;
 
 namespace MyLoadTest.LoadRunnerDocumentation.AddIn.Parsing
 {
-    [DebuggerDisplay("@{LineIndex} : {Content}")]
+    [DebuggerDisplay("#{LineIndex} : Comment : {Content}")]
     internal sealed class ParsedComment : ParsedElement
     {
         #region Constructors

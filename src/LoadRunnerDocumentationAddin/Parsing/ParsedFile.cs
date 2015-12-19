@@ -43,7 +43,12 @@ namespace MyLoadTest.LoadRunnerDocumentation.AddIn.Parsing
 
             FilePath = filePath;
             Hash = hash;
-            Elements = elements.ToArray().AsReadOnly();
+
+            Elements = elements
+                .OrderBy(obj => obj.LineIndex)
+                .ThenBy(obj => obj.GetType().FullName)
+                .ToArray()
+                .AsReadOnly();
         }
 
         #endregion

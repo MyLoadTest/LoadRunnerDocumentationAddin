@@ -17,6 +17,9 @@ namespace MyLoadTest.LoadRunnerDocumentation.AddIn.Parsing
         public const string SingleLineCommentType = "line";
         public const string DocCommentPrefix = "///";
 
+        public const string TransactionStartFunctionName = "lr_start_transaction";
+        public const string TransactionEndFunctionName = "lr_end_transaction";
+
         public static readonly Regex StringLiteralValueRegex = new Regex(
             $@"^ \"" (?<{SoleRegexGroupName}>.*) \"" $",
             RegexOptions.Singleline | RegexOptions.ExplicitCapture | RegexOptions.IgnorePatternWhitespace
@@ -73,7 +76,7 @@ namespace MyLoadTest.LoadRunnerDocumentation.AddIn.Parsing
             public static readonly XName Expression = Namespace.Default + "expr";
             public static readonly XName Call = Namespace.Default + "call";
             public static readonly XName Name = Namespace.Default + "name";
-            public static readonly XName Literal = Namespace.Literal + "literal";
+            public static readonly XName Literal = Namespace.Default + "literal";
         }
 
         #endregion

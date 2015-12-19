@@ -98,6 +98,9 @@
     <Compile Include="HostCommands\StartupCommand.cs" />
     <Compile Include="LocalHelper.cs" />
     <Compile Include="Pads\DocumentationPad.cs" />
+    <Compile Include="Parsing\ParsedTransactionBoundary.cs" />
+    <Compile Include="Parsing\ParsedTransactionEnd.cs" />
+    <Compile Include="Parsing\ParsedTransactionStart.cs" />
     <Compile Include="Parsing\ParsedElement.cs" />
     <Compile Include="Parsing\ParsedComment.cs" />
     <Compile Include="Parsing\ParsedFile.cs" />

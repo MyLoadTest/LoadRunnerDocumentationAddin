@@ -97,79 +97,113 @@ namespace MyLoadTest.LoadRunnerDocumentation.AddIn.Parsing
                 var fileName = unitElement.Attribute(ParsingConstants.Attribute.FileName).EnsureNotNull().Value;
                 var hash = unitElement.Attribute(ParsingConstants.Attribute.Hash).EnsureNotNull().Value;
 
-                var commentElements = unitElement.Descendants(ParsingConstants.Element.Comment).ToArray();
+                var elements = new List<ParsedElement>();
 
-                var rawCommentDatas = commentElements
-                    .Where(
-                        element =>
-                            element.Attribute(ParsingConstants.Attribute.Type)?.Value
-                                == ParsingConstants.SingleLineCommentType)
-                    .Select(
-                        element => new
-                        {
-                            Match = ParsingConstants.DocCommentRegex.Match(element.Value),
-                            LineIndex =
-                                element
-                                    .Attribute(ParsingConstants.Attribute.Position.Line)
-                                    .EnsureNotNull()
-                                    .Value.ParseInt()
-                        })
-                    .Where(obj => obj.Match.Success)
-                    .Select(
-                        obj =>
-                            new
-                            {
-                                obj.LineIndex,
-                                Content = obj.Match.Groups[ParsingConstants.SoleRegexGroupName].Value
-                            })
-                    .OrderBy(obj => obj.LineIndex)
-                    .ToArray();
+                ParseDocComments(unitElement, elements);
+                ParseTransactionBoundaries(unitElement, elements);
 
-                var commentDatas = new List<ParsedElement>(rawCommentDatas.Length);
-
-                var contentBuilder = new StringBuilder();
-                var startLineIndex = ValueContainer.Create(int.MinValue);
-
-                Action addData =
-                    () =>
-                    {
-                        if (startLineIndex.Value >= 0 && contentBuilder.Length != 0)
-                        {
-                            var commentData = new ParsedComment(startLineIndex.Value, contentBuilder.ToString());
-                            commentDatas.Add(commentData);
-                        }
-
-                        contentBuilder.Clear();
-                    };
-
-                for (var index = 0; index < rawCommentDatas.Length; index++)
-                {
-                    var rawCommentData = rawCommentDatas[index];
-
-                    if (index == 0 || rawCommentData.LineIndex != rawCommentDatas[index - 1].LineIndex + 1)
-                    {
-                        addData();
-
-                        startLineIndex.Value = rawCommentData.LineIndex;
-                    }
-
-                    if (contentBuilder.Length != 0)
-                    {
-                        contentBuilder.AppendLine();
-                    }
-
-                    contentBuilder.Append(rawCommentData.Content);
-                }
-
-                addData();
-
-                var parsedFile = new ParsedFile(fileName, hash, commentDatas);
+                var parsedFile = new ParsedFile(fileName, hash, elements);
                 resultList.Add(parsedFile);
             }
 
-            //// TODO [vmaklai] Parse transactions scopes: lr_start_transaction and lr_end_transaction
-
             return resultList.ToArray();
+        }
+
+        private static void ParseDocComments(XContainer unitElement, ICollection<ParsedElement> elements)
+        {
+            var commentElements = unitElement.Descendants(ParsingConstants.Element.Comment).ToArray();
+
+            var commentDatas = commentElements
+                .Where(
+                    element =>
+                        element.Attribute(ParsingConstants.Attribute.Type)?.Value
+                            == ParsingConstants.SingleLineCommentType)
+                .Select(
+                    element => new
+                    {
+                        Match = ParsingConstants.DocCommentRegex.Match(element.Value),
+                        LineIndex = element.GetLineIndex()
+                    })
+                .Where(obj => obj.Match.Success)
+                .Select(
+                    obj =>
+                        new
+                        {
+                            obj.LineIndex,
+                            Content = obj.Match.Groups[ParsingConstants.SoleRegexGroupName].Value
+                        })
+                .OrderBy(obj => obj.LineIndex)
+                .ToArray();
+
+            var contentBuilder = new StringBuilder();
+            var startLineIndex = ValueContainer.Create(int.MinValue);
+
+            Action addData =
+                () =>
+                {
+                    if (startLineIndex.Value >= 0 && contentBuilder.Length != 0)
+                    {
+                        var commentData = new ParsedComment(startLineIndex.Value, contentBuilder.ToString());
+                        elements.Add(commentData);
+                    }
+
+                    contentBuilder.Clear();
+                };
+
+            for (var index = 0; index < commentDatas.Length; index++)
+            {
+                var rawCommentData = commentDatas[index];
+
+                if (index == 0 || rawCommentData.LineIndex != commentDatas[index - 1].LineIndex + 1)
+                {
+                    addData();
+
+                    startLineIndex.Value = rawCommentData.LineIndex;
+                }
+
+                if (contentBuilder.Length != 0)
+                {
+                    contentBuilder.AppendLine();
+                }
+
+                contentBuilder.Append(rawCommentData.Content);
+            }
+
+            addData();
+        }
+
+        private static void ParseTransactionBoundaries(XContainer unitElement, List<ParsedElement> elements)
+        {
+            var callNameElements = unitElement
+                .Descendants(ParsingConstants.Element.ExpressionStatement)
+                .Descendants(ParsingConstants.Element.Expression)
+                .Descendants(ParsingConstants.Element.Call)
+                .Descendants(ParsingConstants.Element.Name)
+                .ToArray();
+
+            var transactionBoundaries = callNameElements
+                .Where(
+                    obj =>
+                        obj.Value == ParsingConstants.TransactionStartFunctionName
+                            || obj.Value == ParsingConstants.TransactionEndFunctionName)
+                .Select(
+                    obj => new
+                    {
+                        LineIndex = obj.GetLineIndex(),
+                        IsStart = obj.Value == ParsingConstants.TransactionStartFunctionName,
+                        Name = obj
+                            .Parent?
+                            .Element(ParsingConstants.Element.ArgumentList)?
+                            .Element(ParsingConstants.Element.Argument)?
+                            .Element(ParsingConstants.Element.Expression)?
+                            .Element(ParsingConstants.Element.Literal)?
+                            .GetLiteralStringValue()
+                    })
+                .Where(obj => !obj.Name.IsNullOrEmpty())
+                .Select(obj => ParsedTransactionBoundary.Create(obj.IsStart, obj.LineIndex, obj.Name))
+                .ToArray();
+
+            elements.AddRange(transactionBoundaries);
         }
 
         #endregion
