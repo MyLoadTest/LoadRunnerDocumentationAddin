@@ -163,11 +163,11 @@ namespace MyLoadTest.LoadRunnerDocumentation.AddIn.Controls
                     }
                 });
 
-            var parsedFileDatas = Parser.ParseFiles(actionFilePaths);
-            Trace.WriteLine(parsedFileDatas);
+            var parsedFiles = Parser.ParseFiles(actionFilePaths);
 
-            var content = parsedFileDatas
-                .SelectMany(obj => obj.Comments)
+            var content = parsedFiles
+                .SelectMany(obj => obj.Elements)
+                .OfType<ParsedComment>()
                 .Select(obj => obj.Content)
                 .Join(Environment.NewLine + Environment.NewLine);
 
@@ -176,7 +176,6 @@ namespace MyLoadTest.LoadRunnerDocumentation.AddIn.Controls
             settings.RenderSoftLineBreaksAsLineBreaks = true;
 
             var document = CommonMarkConverter.Parse(content, settings);
-            ////Trace.WriteLine(document);
 
             ////var htmlContent = CommonMarkConverter.Convert(content, settings);
             ////Trace.WriteLine(htmlContent);

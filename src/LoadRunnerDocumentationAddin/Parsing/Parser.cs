@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Xml.Linq;
+using Omnifactotum;
 
 namespace MyLoadTest.LoadRunnerDocumentation.AddIn.Parsing
 {
@@ -27,7 +28,7 @@ namespace MyLoadTest.LoadRunnerDocumentation.AddIn.Parsing
 
         #region Public Methods
 
-        public static ParsedFileData[] ParseFiles(ICollection<string> filePaths)
+        public static ParsedFile[] ParseFiles(ICollection<string> filePaths)
         {
             #region Argument Check
 
@@ -88,7 +89,7 @@ namespace MyLoadTest.LoadRunnerDocumentation.AddIn.Parsing
                 .ToArray()
                 ?? new XElement[0];
 
-            var resultList = new List<ParsedFileData>(unitElements.Length);
+            var resultList = new List<ParsedFile>(unitElements.Length);
 
             //// ReSharper disable once LoopCanBeConvertedToQuery
             foreach (var unitElement in unitElements)
@@ -124,17 +125,17 @@ namespace MyLoadTest.LoadRunnerDocumentation.AddIn.Parsing
                     .OrderBy(obj => obj.LineIndex)
                     .ToArray();
 
-                var commentDatas = new List<CommentData>(rawCommentDatas.Length);
+                var commentDatas = new List<ParsedElement>(rawCommentDatas.Length);
 
                 var contentBuilder = new StringBuilder();
-                var startLineIndex = int.MinValue;
+                var startLineIndex = ValueContainer.Create(int.MinValue);
 
                 Action addData =
                     () =>
                     {
-                        if (startLineIndex >= 0 && contentBuilder.Length != 0)
+                        if (startLineIndex.Value >= 0 && contentBuilder.Length != 0)
                         {
-                            var commentData = new CommentData(startLineIndex, contentBuilder.ToString());
+                            var commentData = new ParsedComment(startLineIndex.Value, contentBuilder.ToString());
                             commentDatas.Add(commentData);
                         }
 
@@ -149,7 +150,7 @@ namespace MyLoadTest.LoadRunnerDocumentation.AddIn.Parsing
                     {
                         addData();
 
-                        startLineIndex = rawCommentData.LineIndex;
+                        startLineIndex.Value = rawCommentData.LineIndex;
                     }
 
                     if (contentBuilder.Length != 0)
@@ -162,8 +163,8 @@ namespace MyLoadTest.LoadRunnerDocumentation.AddIn.Parsing
 
                 addData();
 
-                var data = new ParsedFileData(fileName, hash, commentDatas);
-                resultList.Add(data);
+                var parsedFile = new ParsedFile(fileName, hash, commentDatas);
+                resultList.Add(parsedFile);
             }
 
             //// TODO [vmaklai] Parse transactions scopes: lr_start_transaction and lr_end_transaction

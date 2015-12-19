@@ -6,12 +6,12 @@ using System.Linq;
 
 namespace MyLoadTest.LoadRunnerDocumentation.AddIn.Parsing
 {
-    [DebuggerDisplay(@"\{ {FilePath} : {Comments.Count} : {Hash} \}")]
-    internal sealed class ParsedFileData
+    [DebuggerDisplay(@"\{ {FilePath} : {Elements.Count} : {Hash} \}")]
+    internal sealed class ParsedFile
     {
         #region Constructors
 
-        public ParsedFileData(string filePath, string hash, ICollection<CommentData> comments)
+        public ParsedFile(string filePath, string hash, ICollection<ParsedElement> elements)
         {
             #region Argument Check
 
@@ -29,21 +29,21 @@ namespace MyLoadTest.LoadRunnerDocumentation.AddIn.Parsing
                     nameof(hash));
             }
 
-            if (comments == null)
+            if (elements == null)
             {
-                throw new ArgumentNullException(nameof(comments));
+                throw new ArgumentNullException(nameof(elements));
             }
 
-            if (comments.Any(item => item == null))
+            if (elements.Any(item => item == null))
             {
-                throw new ArgumentException(@"The collection contains a null element.", nameof(comments));
+                throw new ArgumentException(@"The collection contains a null element.", nameof(elements));
             }
 
             #endregion
 
             FilePath = filePath;
             Hash = hash;
-            Comments = comments.ToArray().AsReadOnly();
+            Elements = elements.ToArray().AsReadOnly();
         }
 
         #endregion
@@ -60,7 +60,7 @@ namespace MyLoadTest.LoadRunnerDocumentation.AddIn.Parsing
             get;
         }
 
-        public ReadOnlyCollection<CommentData> Comments
+        public ReadOnlyCollection<ParsedElement> Elements
         {
             get;
         }

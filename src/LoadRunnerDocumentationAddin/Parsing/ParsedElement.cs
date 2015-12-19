@@ -1,18 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Diagnostics;
-using System.Linq;
-using Omnifactotum.Annotations;
 
 namespace MyLoadTest.LoadRunnerDocumentation.AddIn.Parsing
 {
-    [DebuggerDisplay("@{LineIndex} : {Content}")]
-    internal sealed class CommentData
+    [DebuggerDisplay("[{GetType().Name,nq}] @{LineIndex}")]
+    internal abstract class ParsedElement
     {
         #region Constructors
 
-        public CommentData(int lineIndex, [NotNull] string content)
+        protected ParsedElement(int lineIndex)
         {
             #region Argument Check
 
@@ -24,15 +20,9 @@ namespace MyLoadTest.LoadRunnerDocumentation.AddIn.Parsing
                     @"The value cannot be negative.");
             }
 
-            if (content == null)
-            {
-                throw new ArgumentNullException(nameof(content));
-            }
-
             #endregion
 
             LineIndex = lineIndex;
-            Content = content;
         }
 
         #endregion
@@ -40,11 +30,6 @@ namespace MyLoadTest.LoadRunnerDocumentation.AddIn.Parsing
         #region Public Properties
 
         public int LineIndex
-        {
-            get;
-        }
-
-        public string Content
         {
             get;
         }

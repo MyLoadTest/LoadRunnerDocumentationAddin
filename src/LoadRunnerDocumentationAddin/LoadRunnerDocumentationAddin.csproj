@@ -98,8 +98,9 @@
     <Compile Include="HostCommands\StartupCommand.cs" />
     <Compile Include="LocalHelper.cs" />
     <Compile Include="Pads\DocumentationPad.cs" />
-    <Compile Include="Parsing\CommentData.cs" />
-    <Compile Include="Parsing\ParsedFileData.cs" />
+    <Compile Include="Parsing\ParsedElement.cs" />
+    <Compile Include="Parsing\ParsedComment.cs" />
+    <Compile Include="Parsing\ParsedFile.cs" />
     <Compile Include="Parsing\Parser.cs" />
     <Compile Include="Parsing\ParsingConstants.cs" />
     <Compile Include="Parsing\ParsingHelper.cs" />
